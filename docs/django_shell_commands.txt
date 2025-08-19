@@ -1,0 +1,62 @@
+# Команды для выполнения в Django shell (python manage.py shell)
+
+from django.contrib.auth.models import User
+from news.models import Author, Category, Post, PostCategory, Comment
+
+# 1) Создать двух пользователей
+u1 = User.objects.create_user('user1', password='pass1')
+u2 = User.objects.create_user('user2', password='pass2')
+
+# 2) Создать два объекта модели Author, связанные с пользователями
+a1 = Author.objects.create(user=u1)
+a2 = Author.objects.create(user=u2)
+
+# 3) Добавить 4 категории
+c_sport = Category.objects.create(name='Спорт')
+c_politics = Category.objects.create(name='Политика')
+c_education = Category.objects.create(name='Образование')
+c_it = Category.objects.create(name='IT')
+
+# 4) Добавить 2 статьи и 1 новость
+p1 = Post.objects.create(author=a1, post_type=Post.ARTICLE, title='Статья 1', text='Текст статьи 1 ' * 20)
+p2 = Post.objects.create(author=a1, post_type=Post.ARTICLE, title='Статья 2', text='Текст статьи 2 ' * 15)
+p3 = Post.objects.create(author=a2, post_type=Post.NEWS, title='Новость 1', text='Текст новости 1 ' * 10)
+
+# 5) Присвоить им категории (минимум у одной > 2 категорий)
+p1.categories.add(c_sport, c_it)
+PostCategory.objects.create(post=p2, category=c_politics)
+PostCategory.objects.create(post=p2, category=c_education)
+PostCategory.objects.create(post=p2, category=c_it)
+p3.categories.add(c_politics)
+
+# 6) Создать как минимум 4 комментария к разным постам
+cm1 = Comment.objects.create(post=p1, user=u1, text='Отличная статья!')
+cm2 = Comment.objects.create(post=p1, user=u2, text='Не согласен с автором.')
+cm3 = Comment.objects.create(post=p2, user=u2, text='Полезная информация.')
+cm4 = Comment.objects.create(post=p3, user=u1, text='Интересная новость.')
+
+# 7) Применить like()/dislike() к статьям и комментариям
+p1.like(); p1.like(); p1.dislike()
+p2.like(); p2.like(); p2.like()
+p3.dislike()
+
+cm1.like(); cm1.like()
+cm2.dislike()
+cm3.like()
+cm4.like(); cm4.dislike(); cm4.like()
+
+# 8) Обновить рейтинги пользователей
+a1.update_rating()
+a2.update_rating()
+
+# 9) Вывести username и рейтинг лучшего пользователя
+best_author = Author.objects.order_by('-rating').values('user__username', 'rating').first()
+print(best_author)
+
+# 10) Вывести дату, username автора, рейтинг, заголовок и превью лучшего поста
+best_post = Post.objects.order_by('-rating').first()
+print(best_post.created_at, best_post.author.user.username, best_post.rating, best_post.title, best_post.preview())
+
+# 11) Вывести все комментарии к этой статье (дата, пользователь, рейтинг, текст)
+for c in Comment.objects.filter(post=best_post).select_related('user').order_by('created_at'):
+    print(c.created_at, c.user.username, c.rating, c.text)
