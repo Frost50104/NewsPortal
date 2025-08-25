@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}News Portal{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        header, footer { margin-bottom: 1.5rem; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .muted { color: #666; font-size: 0.9rem; }
+        a { text-decoration: none; color: #1a73e8; }
+        a:hover { text-decoration: underline; }
+        .card { padding: 1rem; border: 1px solid #e5e5e5; border-radius: 8px; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><a href="/news/">News Portal</a></h1>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="muted">
+        &copy; News Portal
+    </footer>
+</div>
+</body>
+</html>

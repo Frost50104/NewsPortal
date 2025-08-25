@@ -1,0 +1,20 @@
+{% extends 'default.html' %}
+{% load censor_filters %}
+
+{% block title %}Все новости{% endblock %}
+
+{% block content %}
+<h2>Все новости</h2>
+
+{% if news_list %}
+    {% for post in news_list %}
+        <div class="card">
+            <h3><a href="{% url 'news:detail' post.pk %}">{{ post.title|censor }}</a></h3>
+            <div class="muted">Дата публикации: {{ post.created_at|date:"d.m.Y" }}</div>
+            <p>{{ post.text|slice:":20"|censor }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p class="muted">Новостей пока нет.</p>
+{% endif %}
+{% endblock %}

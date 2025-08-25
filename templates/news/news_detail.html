@@ -1,0 +1,15 @@
+{% extends 'default.html' %}
+{% load censor_filters %}
+
+{% block title %}Новость #{{ news_item.pk }}{% endblock %}
+
+{% block content %}
+<article class="card">
+    <h2>{{ news_item.title|censor }}</h2>
+    <div class="muted">Дата публикации: {{ news_item.created_at|date:"d.m.Y" }}</div>
+    <div>
+        <p>{{ news_item.text|linebreaksbr|censor }}</p>
+    </div>
+</article>
+<p><a href="{% url 'news:list' %}">← Ко всем новостям</a></p>
+{% endblock %}
