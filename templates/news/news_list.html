@@ -5,6 +5,7 @@
 
 {% block content %}
 <h2>Все новости</h2>
+<p><a href="{% url 'news:search' %}">Поиск новостей</a> | <a href="{% url 'news:news_create' %}">Добавить новость</a> | <a href="{% url 'news:article_create' %}">Добавить статью</a></p>
 
 {% if news_list %}
     {% for post in news_list %}
@@ -12,8 +13,39 @@
             <h3><a href="{% url 'news:detail' post.pk %}">{{ post.title|censor }}</a></h3>
             <div class="muted">Дата публикации: {{ post.created_at|date:"d.m.Y" }}</div>
             <p>{{ post.text|slice:":20"|censor }}</p>
+            <p class="muted">
+                <a href="{% url 'news:news_edit' post.pk %}">Редактировать</a> ·
+                <a href="{% url 'news:news_delete' post.pk %}">Удалить</a>
+            </p>
         </div>
     {% endfor %}
+
+    {% if is_paginated %}
+        <nav aria-label="Навигация по страницам">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">« Первая</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">‹ Предыдущая</a>
+                {% endif %}
+
+                {# Nearby page numbers #}
+                {% for i in paginator.page_range %}
+                    {% if i >= page_obj.number|add:-2 and i <= page_obj.number|add:2 %}
+                        {% if i == page_obj.number %}
+                            <strong>[{{ i }}]</strong>
+                        {% else %}
+                            <a href="?page={{ i }}">{{ i }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Следующая ›</a>
+                    <a href="?page={{ paginator.num_pages }}">Последняя »</a>
+                {% endif %}
+            </div>
+        </nav>
+    {% endif %}
 {% else %}
     <p class="muted">Новостей пока нет.</p>
 {% endif %}
