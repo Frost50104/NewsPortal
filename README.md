@@ -41,15 +41,23 @@
 
 ## Быстрый старт
 1) Python 3.10+ (рекомендуется) и виртуальное окружение.
-2) Установите зависимости: `pip install django`
+2) Установите зависимости: `pip install django django-allauth`.
 3) Примените миграции:
    - `python manage.py makemigrations`
    - `python manage.py migrate`
-4) (Опционально) создайте суперпользователя: `python manage.py createsuperuser`
-5) (Рекомендуется) через админку создайте хотя бы одного `Author`, связанного с пользователем.
-6) Запустите сервер: `python manage.py runserver`
+4) (Опционально) создайте суперпользователя: `python manage.py createsuperuser`.
+5) Настройте вход/регистрацию:
+   - В админке (`/admin/`) откройте "Sites" и убедитесь, что домен соответствует вашему (например, 127.0.0.1:8000).
+   - Создайте SocialApp для провайдера Yandex в разделе Social applications:
+     - Provider: Yandex
+     - Name: произвольное, например "Yandex OAuth"
+     - Client id и Secret: из кабинета Яндекс.OAuth
+     - Свяжите приложение с текущим сайтом (Sites).
+   - Альтернатива: создайте SocialApp через shell — см. `docs/django_shell_commands.txt`.
+6) Запустите сервер: `python manage.py runserver`.
 7) Проверьте в браузере:
    - Список: `http://127.0.0.1:8000/news/`
+   - Вход: `http://127.0.0.1:8000/accounts/login/` (есть ссылка "Yandex")
    - Поиск: `http://127.0.0.1:8000/news/search/`
    - Создать новость: `http://127.0.0.1:8000/news/create/`
    - Создать статью: `http://127.0.0.1:8000/articles/create/`
@@ -61,8 +69,24 @@
 - Поиск: `templates/news/news_search.html`
 - Формы и удаление: `templates/news/news_form.html`, `templates/news/news_confirm_delete.html`, `templates/news/article_form.html`, `templates/news/article_confirm_delete.html`
 
+## Аутентификация и роли
+- Используется django-allauth (локальная форма входа + вход через Яндекс).
+- Маршруты:
+  - Вход: `/accounts/login/`
+  - Регистрация: `/accounts/signup/`
+  - Профиль (редактирование): `/news/profile/` (требуется вход)
+  - Стать автором: `/news/become-author/` (требуется вход)
+- Группы и права:
+  - При миграции автоматически создаются группы `common` и `authors`.
+  - Новые пользователи автоматически добавляются в группу `common`.
+  - Кнопка "Стать автором" добавляет пользователя в группу `authors`.
+  - Группа `authors` имеет права `add_post` и `change_post`, что даёт доступ к созданию и редактированию новостей/статей.
+- Конфигурация allauth (актуальные ключи):
+  - `ACCOUNT_LOGIN_METHODS = {'email', 'username'}` — вход по имени пользователя или email.
+  - `ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']` — email опционален.
+
 ## Полезное
 - Команды для Django shell: `docs/django_shell_commands.txt` (примеры создания тестовых данных, работы с рейтингами и выборками).
 - URL-маршруты: `newsportal/urls.py` + `news/urls.py`.
 
-Обновлено: 04.09.2025 14:31 (локальное время)
+Обновлено: 09.09.2025 14:20 (локальное время)

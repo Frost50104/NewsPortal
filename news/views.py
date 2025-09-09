@@ -1,8 +1,15 @@
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
+from django.views.generic.edit import UpdateView as UserUpdateView
+from django.shortcuts import redirect
+from django.contrib import messages
 from .models import Post, Author
+from .signals import AUTHORS_GROUP
 
 
 class NewsListView(ListView):
@@ -61,8 +68,36 @@ class NewsSearchView(ListView):
         return ctx
 
 
-# CRUD for News
-class NewsCreateView(CreateView):
+# Профиль пользователя: редактирование (требует аутентификации)
+class ProfileUpdateView(LoginRequiredMixin, UserUpdateView):
+    model = get_user_model()
+    fields = ['first_name', 'last_name', 'email']
+    template_name = 'account/profile_form.html'
+    success_url = reverse_lazy('news:list')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
+# Возможность стать автором
+class BecomeAuthorView(LoginRequiredMixin, FormView):
+    template_name = 'account/become_author.html'
+    success_url = reverse_lazy('news:list')
+
+    def post(self, request, *args, **kwargs):
+        group, _ = Group.objects.get_or_create(name=AUTHORS_GROUP)
+        request.user.groups.add(group)
+        messages.success(request, 'Вы стали автором! Теперь вам доступны создание и редактирование публикаций.')
+        return redirect(self.get_success_url())
+
+    def get(self, request, *args, **kwargs):
+        # Simple confirmation page with a button
+        return super().get(request, *args, **kwargs)
+
+
+# CRUD для новостей
+class NewsCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = 'news.add_post'
     model = Post
     fields = ['title', 'text', 'categories']
     template_name = 'news/news_form.html'
@@ -79,7 +114,8 @@ class NewsCreateView(CreateView):
         return super().form_valid(form)
 
 
-class NewsUpdateView(UpdateView):
+class NewsUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = 'news.change_post'
     model = Post
     fields = ['title', 'text', 'categories']
     template_name = 'news/news_form.html'
@@ -99,7 +135,8 @@ class NewsDeleteView(DeleteView):
 
 
 # CRUD for Articles
-class ArticleCreateView(CreateView):
+class ArticleCreateView(PermissionRequiredMixin, CreateView):
+    permission_required = 'news.add_post'
     model = Post
     fields = ['title', 'text', 'categories']
     template_name = 'news/article_form.html'
@@ -115,7 +152,8 @@ class ArticleCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ArticleUpdateView(UpdateView):
+class ArticleUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = 'news.change_post'
     model = Post
     fields = ['title', 'text', 'categories']
     template_name = 'news/article_form.html'

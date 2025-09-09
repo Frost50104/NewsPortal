@@ -1,0 +1,9 @@
+{% extends "default.html" %}
+{% block content %}
+<h1>Стать автором</h1>
+<p>Нажмите кнопку ниже, чтобы стать автором и получить права на создание и редактирование публикаций.</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Стать автором</button>
+</form>
+{% endblock %}

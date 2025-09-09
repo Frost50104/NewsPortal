@@ -5,8 +5,9 @@ from news.views import (
 )
 
 urlpatterns = [
+    path('', include('news.urls', namespace='news')),
     path('admin/', admin.site.urls),
-    path('news/', include('news.urls', namespace='news')),
+    path('accounts/', include('allauth.urls')),
 
     # Article routes at root as per requirement
     path('articles/create/', ArticleCreateView.as_view(), name='article_create_root'),
