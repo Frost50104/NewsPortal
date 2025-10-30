@@ -4,12 +4,72 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView, View
 from django.views.generic.edit import UpdateView as UserUpdateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from .models import Post, Author
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+from django import forms
+from django.utils.http import url_has_allowed_host_and_scheme
+from urllib.parse import quote as urlquote
+from .models import Post, Author, Category, CategorySubscription
 from .signals import AUTHORS_GROUP
+
+
+class AuthorPermissionRedirectMixin:
+    def handle_no_permission(self):
+        request = self.request
+        if request.user.is_authenticated:
+            messages.warning(request, 'Недостаточно прав для выполнения действия. Станьте автором, чтобы продолжить.')
+            next_url = request.get_full_path()
+            become_url = reverse('news:become_author')
+            # Append next param
+            return redirect(f"{become_url}?next={urlquote(next_url)}")
+        # Fallback to default behavior (redirect to login)
+        return super().handle_no_permission()
+
+
+class CategoryDetailView(DetailView):
+    model = Category
+    template_name = 'news/category_detail.html'
+    context_object_name = 'category'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        category = self.object
+        posts = category.posts.order_by('-created_at')
+        ctx['posts'] = posts
+        user = self.request.user
+        ctx['is_subscribed'] = False
+        if user.is_authenticated:
+            ctx['is_subscribed'] = CategorySubscription.objects.filter(user=user, category=category).exists()
+        return ctx
+
+
+class CategorySubscribeView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        CategorySubscription.objects.get_or_create(user=request.user, category=category)
+        messages.success(request, f'Вы подписались на категорию: {category.name}')
+        return HttpResponseRedirect(reverse('news:category_detail', args=[pk]))
+
+
+class CategoryUnsubscribeView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        CategorySubscription.objects.filter(user=request.user, category=category).delete()
+        messages.info(request, f'Вы отписались от категории: {category.name}')
+        return HttpResponseRedirect(reverse('news:category_detail', args=[pk]))
+
+
+class ArticleDetailView(DetailView):
+    model = Post
+    template_name = 'news/article_detail.html'
+    context_object_name = 'article'
+
+    def get_queryset(self):
+        return Post.objects.filter(post_type=Post.ARTICLE)
 
 
 class NewsListView(ListView):
@@ -83,20 +143,28 @@ class ProfileUpdateView(LoginRequiredMixin, UserUpdateView):
 class BecomeAuthorView(LoginRequiredMixin, FormView):
     template_name = 'account/become_author.html'
     success_url = reverse_lazy('news:list')
+    form_class = forms.Form  # simple empty form
 
     def post(self, request, *args, **kwargs):
         group, _ = Group.objects.get_or_create(name=AUTHORS_GROUP)
         request.user.groups.add(group)
+        # Ensure Author object exists for this user
+        Author.objects.get_or_create(user=request.user)
         messages.success(request, 'Вы стали автором! Теперь вам доступны создание и редактирование публикаций.')
+        next_url = request.POST.get('next') or request.GET.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+            return redirect(next_url)
         return redirect(self.get_success_url())
 
-    def get(self, request, *args, **kwargs):
-        # Simple confirmation page with a button
-        return super().get(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        request = self.request
+        ctx['next'] = request.GET.get('next', '')
+        return ctx
 
 
 # CRUD для новостей
-class NewsCreateView(PermissionRequiredMixin, CreateView):
+class NewsCreateView(AuthorPermissionRedirectMixin, PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
     model = Post
     fields = ['title', 'text', 'categories']
@@ -104,17 +172,14 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('news:list')
 
     def form_valid(self, form):
-        # In a real app, author should be current user; for simplicity assign first author
-        author = Author.objects.first()
-        if author is None:
-            form.add_error(None, 'Нет доступного автора. Создайте автора в админке.')
-            return self.form_invalid(form)
+        # Assign current user as author (create Author profile if missing)
+        author, _ = Author.objects.get_or_create(user=self.request.user)
         form.instance.author = author
         form.instance.post_type = Post.NEWS
         return super().form_valid(form)
 
 
-class NewsUpdateView(PermissionRequiredMixin, UpdateView):
+class NewsUpdateView(AuthorPermissionRedirectMixin, PermissionRequiredMixin, UpdateView):
     permission_required = 'news.change_post'
     model = Post
     fields = ['title', 'text', 'categories']
@@ -135,7 +200,7 @@ class NewsDeleteView(DeleteView):
 
 
 # CRUD for Articles
-class ArticleCreateView(PermissionRequiredMixin, CreateView):
+class ArticleCreateView(AuthorPermissionRedirectMixin, PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
     model = Post
     fields = ['title', 'text', 'categories']
@@ -143,10 +208,8 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('news:list')
 
     def form_valid(self, form):
-        author = Author.objects.first()
-        if author is None:
-            form.add_error(None, 'Нет доступного автора. Создайте автора в админке.')
-            return self.form_invalid(form)
+        # Assign current user as author (create Author profile if missing)
+        author, _ = Author.objects.get_or_create(user=self.request.user)
         form.instance.author = author
         form.instance.post_type = Post.ARTICLE
         return super().form_valid(form)

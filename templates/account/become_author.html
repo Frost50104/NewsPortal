@@ -4,6 +4,7 @@
 <p>Нажмите кнопку ниже, чтобы стать автором и получить права на создание и редактирование публикаций.</p>
 <form method="post">
   {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
   <button type="submit">Стать автором</button>
 </form>
 {% endblock %}

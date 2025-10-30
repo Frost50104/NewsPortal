@@ -1,5 +1,6 @@
 {% extends "default.html" %}
 {% load socialaccount %}
+{% load social_helpers %}
 {% block content %}
 <h1>Вход</h1>
 <form method="post" action="{% url 'account_login' %}">
@@ -8,9 +9,14 @@
   <button type="submit">Войти</button>
 </form>
 <hr>
-<p>Или войдите через:</p>
-<ul>
-  <li><a href="{% provider_login_url 'yandex' %}">Yandex</a></li>
-</ul>
+{% social_app_configured 'yandex' as has_yandex %}
+{% if has_yandex %}
+  <p>Или войдите через:</p>
+  <ul>
+    <li><a href="{% provider_login_url 'yandex' %}">Yandex</a></li>
+  </ul>
+{% elif debug %}
+  <p class="muted">Кнопка входа через Yandex скрыта: не настроено SocialApp для текущего сайта. См. README раздел про allauth.</p>
+{% endif %}
 <p>Нет аккаунта? <a href="{% url 'account_signup' %}">Зарегистрироваться</a></p>
 {% endblock %}

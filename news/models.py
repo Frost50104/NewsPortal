@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -26,6 +27,20 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CategorySubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='category_subscriptions')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='subscriptions')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'category')
+        verbose_name = 'Подписка на категорию'
+        verbose_name_plural = 'Подписки на категории'
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.category.name}"
 
 
 class Post(models.Model):
@@ -57,6 +72,11 @@ class Post(models.Model):
 
     def preview(self):
         return (self.text[:124] + '...') if len(self.text) > 124 else self.text
+
+    def get_absolute_url(self):
+        if self.post_type == Post.NEWS:
+            return reverse('news:detail', args=[self.pk])
+        return reverse('news:article_detail', args=[self.pk])
 
     def __str__(self):
         return f"{self.get_post_type_display()}: {self.title} (rating={self.rating})"
