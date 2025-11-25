@@ -48,7 +48,7 @@
 
 ## Быстрый старт
 1) Python 3.10+ (рекомендуется) и виртуальное окружение.
-2) Установите зависимости: `pip install django django-allauth`.
+2) Установите зависимости: `pip install django django-allauth celery redis`.
 3) Примените миграции:
    - `python manage.py makemigrations`
    - `python manage.py migrate`
@@ -70,6 +70,25 @@
    - Создать статью: `http://127.0.0.1:8000/articles/create/`
    - Страница категории (для подписки): `http://127.0.0.1:8000/news/categories/<id>/`
 
+ ### Redis и Celery (фоновая обработка писем)
+ - Установите Redis:
+   - macOS (Homebrew): `brew install redis && brew services start redis`
+   - Linux (Debian/Ubuntu): `sudo apt-get install redis-server`
+   - Windows: используйте Docker: `docker run -p 6379:6379 redis:7`
+ - Установите пакеты Python: `pip install celery redis`
+ - Переменные окружения (опционально, если Redis не на localhost):
+   - `CELERY_BROKER_URL=redis://<host>:6379/0`
+   - `CELERY_RESULT_BACKEND=redis://<host>:6379/1`
+ - Запуск воркера Celery (в отдельном терминале):
+   ```bash
+   celery -A newsportal worker -l info
+   ```
+ - Запуск планировщика Celery Beat (для еженедельной рассылки) в ещё одном терминале:
+   ```bash
+   celery -A newsportal beat -l info
+   ```
+ - Планировщик настроен в `settings.py` на каждое понедельник 08:00 (локальное время `Europe/Moscow`).
+
 ## Почта: настройка и проверка
 - По умолчанию используется консольный backend: письма выводятся в консоль сервера (см. `settings.py`, `EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'`).
 - Для боевого SMTP укажите переменные в `settings.py` (пример):
@@ -88,13 +107,14 @@
 - Команда управления: `python manage.py send_weekly_digest`
   - Собирает все новые статьи (тип `ARTICLE`) за последние 7 дней для каждого пользователя по его подпискам.
   - Отправляет одно письмо пользователю со списком ссылок.
-- Рекомендация по расписанию (Linux cron, каждое воскресенье 09:00):
+- Автоматическое расписание через Celery Beat: понедельник 08:00 (см. `CELERY_BEAT_SCHEDULE` в `settings.py`). При запущенных процессах worker+beat письма отправятся автоматически.
+- Альтернатива без Celery: можно использовать системный cron, пример:
   ```cron
   0 9 * * SUN /path/to/venv/bin/python /path/to/project/manage.py send_weekly_digest >> /var/log/newsportal_digest.log 2>&1
   ```
 
 ## Мгновенные уведомления и приветственное письмо
-- Мгновенные уведомления отсылаются при добавлении статьи к категории (при сохранении формы добавления/редактирования статьи).
+- Мгновенные уведомления отсылаются при добавлении статьи к категории (при сохранении формы добавления/редактирования статьи) — теперь асинхронно через Celery.
 - Превью берётся из метода `Post.preview()`; в письме всегда есть гиперссылка на статью.
 - Приветственное письмо отправляется при создании пользователя (сигнал `post_save`).
 

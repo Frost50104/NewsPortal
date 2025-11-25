@@ -7,6 +7,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.sites.models import Site
 
+from .tasks import send_article_notification
+
 from .models import Post, CategorySubscription
 
 COMMON_GROUP = 'common'
@@ -54,7 +56,7 @@ def add_new_user_to_common(sender, instance, created, **kwargs):
 
 @receiver(m2m_changed, sender=Post.categories.through)
 def notify_on_article_in_category(sender, instance: Post, action, reverse, pk_set, **kwargs):
-    # Send immediate emails when an article is associated with categories
+    # Отправляем уведомления асинхронно через Celery, когда статья связана с категориями
     if action != 'post_add':
         return
     if instance.post_type != Post.ARTICLE:
@@ -62,21 +64,9 @@ def notify_on_article_in_category(sender, instance: Post, action, reverse, pk_se
     if not pk_set:
         return
 
-    # Build absolute URL
-    current_site = Site.objects.get_current()
-    link = f"https://{current_site.domain}{instance.get_absolute_url()}"
-    subject = f"Новая статья в ваших категориях: {instance.title}"
-    preview = instance.preview()
-    message = f"{preview}\n\nЧитать полностью: {link}"
-
-    # Collect distinct recipient emails of subscribers to any of the added categories
-    emails = set(
-        CategorySubscription.objects
-        .filter(category_id__in=list(pk_set))
-        .values_list('user__email', flat=True)
-    )
-    emails.discard('')
-    emails.discard(None)
-
-    if emails:
-        send_mail(subject, message, getattr(settings, 'DEFAULT_FROM_EMAIL', None), list(emails), fail_silently=True)
+    # Делегируем отправку писем задаче Celery
+    try:
+        send_article_notification.delay(instance.id, list(pk_set))
+    except Exception:
+        # В крайнем случае молча игнорируем, чтобы не падать в сигналах
+        pass

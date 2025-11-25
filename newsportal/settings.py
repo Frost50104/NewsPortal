@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -98,3 +99,18 @@ ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
 # Email configuration (console backend by default). Configure SMTP in production.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@example.com'
+
+# Celery / Redis configuration
+# Redis is used as the broker and result backend by default. Adjust via env vars in production.
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = False
+
+# Celery Beat schedule: every Monday at 08:00 local time
+CELERY_BEAT_SCHEDULE = {
+    'send-weekly-digest-every-monday-08-00': {
+        'task': 'news.tasks.send_weekly_digest_task',
+        'schedule': crontab(minute=0, hour=8, day_of_week='mon'),
+    },
+}
