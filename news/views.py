@@ -108,6 +108,7 @@ class NewsSearchView(ListView):
         title = self.request.GET.get('title')
         author = self.request.GET.get('author')
         date_after = self.request.GET.get('date_after')
+        category = self.request.GET.get('category')
         if title:
             qs = qs.filter(title__icontains=title)
         if author:
@@ -116,14 +117,18 @@ class NewsSearchView(ListView):
             d = parse_date(date_after)
             if d:
                 qs = qs.filter(created_at__date__gte=d)
+        if category:
+            qs = qs.filter(categories__id=category)
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['categories'] = Category.objects.all()
         ctx['filters'] = {
             'title': self.request.GET.get('title', ''),
             'author': self.request.GET.get('author', ''),
             'date_after': self.request.GET.get('date_after', ''),
+            'category': self.request.GET.get('category', ''),
         }
         return ctx
 
