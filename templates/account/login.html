@@ -1,0 +1,23 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% load socialaccount %}
+{% load social_helpers %}
+{% block content %}
+<h1>{% trans "Вход" %}</h1>
+<form method="post" action="{% url 'account_login' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">{% trans "Войти" %}</button>
+</form>
+<hr>
+{% social_app_configured 'yandex' as has_yandex %}
+{% if has_yandex %}
+  <p>{% trans "Или войдите через" %}:</p>
+  <ul>
+    <li><a href="{% provider_login_url 'yandex' %}">Yandex</a></li>
+  </ul>
+{% elif debug %}
+  <p class="muted">{% trans "Кнопка входа через Yandex скрыта: не настроено SocialApp для текущего сайта. См. README раздел про allauth." %}</p>
+{% endif %}
+<p>{% trans "Нет аккаунта?" %} <a href="{% url 'account_signup' %}">{% trans "Зарегистрироваться" %}</a></p>
+{% endblock %}

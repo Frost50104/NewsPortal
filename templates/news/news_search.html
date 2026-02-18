@@ -1,0 +1,74 @@
+{% extends 'default.html' %}
+{% load censor_filters %}
+{% load i18n %}
+
+{% block title %}{% trans "Поиск новостей" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Поиск новостей" %}</h2>
+<form method="get" action="">
+    <div>
+        <label>{% trans "Название" %}: <input type="text" name="title" value="{{ filters.title }}"></label>
+    </div>
+    <div>
+        <label>{% trans "Автор (имя пользователя)" %}: <input type="text" name="author" value="{{ filters.author }}"></label>
+    </div>
+    <div>
+        <label>{% trans "Позже даты" %}: <input type="date" name="date_after" value="{{ filters.date_after }}"></label>
+    </div>
+    <div>
+        <label>{% trans "Категория" %}:
+            <select name="category">
+                <option value="">{% trans "Все категории" %}</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if filters.category == cat.id|slugify %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div style="margin-top: 0.5rem;">
+        <button type="submit">{% trans "Искать" %}</button>
+        <a href="{% url 'news:search' %}">{% trans "Сбросить" %}</a>
+    </div>
+</form>
+
+<hr>
+
+{% if news_list %}
+    {% for post in news_list %}
+        <div class="card">
+            <h3><a href="{% url 'news:detail' post.pk %}">{{ post.title|censor }}</a></h3>
+            <div class="muted">{% trans "Дата публикации" %}: {{ post.created_at|date:"d.m.Y" }}</div>
+            <p>{{ post.text|slice:":20"|censor }}</p>
+        </div>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <nav aria-label="{% trans 'Навигация по страницам' %}">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?title={{ filters.title }}&author={{ filters.author }}&date_after={{ filters.date_after }}&category={{ filters.category }}&page=1">« {% trans "Первая" %}</a>
+                    <a href="?title={{ filters.title }}&author={{ filters.author }}&date_after={{ filters.date_after }}&category={{ filters.category }}&page={{ page_obj.previous_page_number }}">‹ {% trans "Предыдущая" %}</a>
+                {% endif %}
+
+                {% for i in paginator.page_range %}
+                    {% if i >= page_obj.number|add:-2 and i <= page_obj.number|add:2 %}
+                        {% if i == page_obj.number %}
+                            <strong>[{{ i }}]</strong>
+                        {% else %}
+                            <a href="?title={{ filters.title }}&author={{ filters.author }}&date_after={{ filters.date_after }}&category={{ filters.category }}&page={{ i }}">{{ i }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?title={{ filters.title }}&author={{ filters.author }}&date_after={{ filters.date_after }}&category={{ filters.category }}&page={{ page_obj.next_page_number }}">{% trans "Следующая" %} ›</a>
+                    <a href="?title={{ filters.title }}&author={{ filters.author }}&date_after={{ filters.date_after }}&category={{ filters.category }}&page={{ paginator.num_pages }}">{% trans "Последняя" %} »</a>
+                {% endif %}
+            </div>
+        </nav>
+    {% endif %}
+{% else %}
+    <p class="muted">{% trans "Ничего не найдено." %}</p>
+{% endif %}
+{% endblock %}

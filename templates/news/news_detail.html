@@ -1,0 +1,24 @@
+{% extends 'default.html' %}
+{% load censor_filters %}
+{% load i18n %}
+
+{% block title %}{% trans "Новость" %} #{{ news_item.pk }}{% endblock %}
+
+{% block content %}
+<article class="card">
+    <h2>{{ news_item.title|censor }}</h2>
+    <div class="muted">{% trans "Дата публикации" %}: {{ news_item.created_at|date:"d E Y H:i" }}</div>
+    <div>
+        <p>{{ news_item.text|linebreaksbr|censor }}</p>
+    </div>
+  <div class="muted" style="margin-top: .5rem;">
+    {% trans "Категории" %}:
+    {% for c in news_item.categories.all %}
+      <a href="{% url 'news:category_detail' c.pk %}">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      —
+    {% endfor %}
+  </div>
+</article>
+<p><a href="{% url 'news:list' %}">← {% trans "Ко всем новостям" %}</a></p>
+{% endblock %}

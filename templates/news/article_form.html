@@ -1,0 +1,17 @@
+{% extends 'default.html' %}
+{% load i18n %}
+
+{% block title %}{% if object %}{% trans "Редактировать статью" %}{% else %}{% trans "Создать статью" %}{% endif %}{% endblock %}
+
+{% block content %}
+<h2>{% if object %}{% trans "Редактировать статью" %}{% else %}{% trans "Создать статью" %}{% endif %}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% trans "Сохранить" %}</button>
+    <a href="{% url 'news:list' %}">{% trans "Отмена" %}</a>
+</form>
+{% if form.non_field_errors %}
+<div class="muted">{{ form.non_field_errors }}</div>
+{% endif %}
+{% endblock %}

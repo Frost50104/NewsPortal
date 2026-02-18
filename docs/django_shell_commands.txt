@@ -1,0 +1,18 @@
+# Полезные команды для Django shell
+# Запуск: python manage.py shell
+
+# Создать группы и права заново (если сигнал не сработал):
+from news.signals import ensure_groups_and_permissions
+ensure_groups_and_permissions()
+
+# Создать SocialApp для Яндекса (django-allauth)
+from allauth.socialaccount.models import SocialApp, SocialAccount, SocialToken
+from django.contrib.sites.models import Site
+site = Site.objects.get_current()
+app, created = SocialApp.objects.get_or_create(provider='yandex', name='Yandex OAuth')
+app.client_id = 'ВАШ_CLIENT_ID_ИЗ_ЯНДЕКС'
+app.secret = 'ВАШ_CLIENT_SECRET_ИЗ_ЯНДЕКС'
+app.key = ''  # не требуется для Яндекс
+app.save()
+app.sites.set([site])
+print('SocialApp настроено:', app)

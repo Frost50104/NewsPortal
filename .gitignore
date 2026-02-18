@@ -1,0 +1,57 @@
+# ---- Python bytecode ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+.python-version
+pip-wheel-metadata/
+
+# ---- Django ----
+# SQLite databases
+*.sqlite3
+sqlite3.db
+# Local settings
+local_settings.py
+# Media uploads and collected static
+media/
+staticfiles/
+# If you collect to ./static (adjust if you keep source static there)
+# comment this out if you keep app/static tracked
+static/
+
+# ---- Logs & runtime ----
+*.log
+logs/
+*.pid
+
+# ---- Tests / Coverage ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+.mypy_cache/
+.pytype/
+
+# ---- Distribution / Packaging ----
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# ---- Editors / IDEs ----
+.idea/
+.vscode/
+*.iml
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db

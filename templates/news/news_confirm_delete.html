@@ -1,0 +1,14 @@
+{% extends 'default.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Удалить новость" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Удалить новость" %}</h2>
+<p>{% blocktrans with title=object.title %}Вы уверены, что хотите удалить новость: "{{ title }}"?{% endblocktrans %}</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">{% trans "Да, удалить" %}</button>
+    <a href="{% url 'news:list' %}">{% trans "Отмена" %}</a>
+</form>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'default.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Категория" %}: {{ category.name }}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Категория" %}: {{ category.name }}</h1>
+
+<div style="margin: 1rem 0;">
+  {% if user.is_authenticated %}
+    {% if is_subscribed %}
+      <form method="post" action="{% url 'news:category_unsubscribe' category.pk %}">
+        {% csrf_token %}
+        <button type="submit">{% trans "Отписаться от рассылки" %}</button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'news:category_subscribe' category.pk %}">
+        {% csrf_token %}
+        <button type="submit">{% trans "Подписаться на рассылку" %}</button>
+      </form>
+    {% endif %}
+  {% else %}
+    <p>{% blocktrans %}Чтобы подписаться на рассылку, <a href="/accounts/login/">войдите</a> или <a href="/accounts/signup/">зарегистрируйтесь</a>.{% endblocktrans %}</p>
+  {% endif %}
+</div>
+
+<hr/>
+<h2>{% trans "Публикации" %}</h2>
+<ul>
+  {% for p in posts %}
+    <li>
+      {% if p.post_type == 'AR' %}
+        <a href="{% url 'news:article_detail' p.pk %}">{{ p.title }}</a>
+      {% else %}
+        <a href="{% url 'news:detail' p.pk %}">{{ p.title }}</a>
+      {% endif %}
+      <span class="muted"> — {{ p.created_at|date:"d.m.Y H:i" }}</span>
+    </li>
+  {% empty %}
+    <li>{% trans "В этой категории пока нет публикаций." %}</li>
+  {% endfor %}
+</ul>
+
+<p><a href="{% url 'news:list' %}">← {% trans "На главную" %}</a></p>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}News Portal{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        header, footer { margin-bottom: 1.5rem; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .muted { color: #666; font-size: 0.9rem; }
+        a { text-decoration: none; color: #1a73e8; }
+        a:hover { text-decoration: underline; }
+        .card { padding: 1rem; border: 1px solid #e5e5e5; border-radius: 8px; margin-bottom: 1rem; }
+        .language-select, .timezone-select { display: inline-block; margin-left: 10px; }
+        
+        /* Dark theme styles */
+        body.theme-dark { background-color: #1a1a1a; color: #f0f0f0; }
+        body.theme-dark a { color: #8ab4f8; }
+        body.theme-dark .card { border-color: #444; }
+        body.theme-dark .muted { color: #aaa; }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const now = new Date();
+            const hour = now.getHours();
+            // Dark theme between 19:00 and 07:00
+            if (hour >= 19 || hour < 7) {
+                document.body.classList.add('theme-dark');
+            }
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div style="float: right;">
+            <div class="language-select">
+                <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                    <input name="next" type="hidden" value="{{ redirect_to }}">
+                    <select name="language">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                {{ language.name_local }} ({{ language.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="{% trans 'ОК' %}">
+                </form>
+            </div>
+            
+            <div class="timezone-select">
+                <form action="{% url 'news:set_timezone' %}" method="post">{% csrf_token %}
+                    <select name="timezone">
+                        {% load tz %}
+                        {% get_current_timezone as TIMEZONE %}
+                        {% for tz in all_timezones %}
+                            <option value="{{ tz }}"{% if tz == TIMEZONE %} selected{% endif %}>{{ tz }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="{% trans 'ОК' %}">
+                </form>
+            </div>
+        </div>
+        <h1><a href="/news/">News Portal</a></h1>
+    </header>
+
+    <main>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="muted">
+        &copy; News Portal
+    </footer>
+</div>
+</body>
+</html>

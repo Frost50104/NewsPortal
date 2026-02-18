@@ -1,0 +1,348 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-14 20:11+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+#: news/models.py:9 news/models.py:42 news/models.py:113
+msgid "Пользователь"
+msgstr ""
+
+#: news/models.py:10 news/models.py:69 news/models.py:116
+msgid "Рейтинг"
+msgstr ""
+
+#: news/models.py:26 news/models.py:63
+msgid "Автор"
+msgstr ""
+
+#: news/models.py:27
+msgid "Авторы"
+msgstr ""
+
+#: news/models.py:31 templates/news/news_search.html:11
+msgid "Название"
+msgstr ""
+
+#: news/models.py:37 news/models.py:43 news/models.py:100
+#: templates/news/category_detail.html:4 templates/news/category_detail.html:7
+#: templates/news/news_search.html:20
+msgid "Категория"
+msgstr ""
+
+#: news/models.py:38 news/models.py:66 templates/news/article_detail.html:15
+#: templates/news/news_detail.html:15
+msgid "Категории"
+msgstr ""
+
+#: news/models.py:44
+msgid "Дата подписки"
+msgstr ""
+
+#: news/models.py:48
+msgid "Подписка на категорию"
+msgstr ""
+
+#: news/models.py:49
+msgid "Подписки на категории"
+msgstr ""
+
+#: news/models.py:59 templates/news/article_detail.html:5
+msgid "Статья"
+msgstr ""
+
+#: news/models.py:60 templates/news/news_detail.html:5
+msgid "Новость"
+msgstr ""
+
+#: news/models.py:64
+msgid "Тип"
+msgstr ""
+
+#: news/models.py:65 news/models.py:115
+msgid "Дата создания"
+msgstr ""
+
+#: news/models.py:67
+msgid "Заголовок"
+msgstr ""
+
+#: news/models.py:68 news/models.py:114
+msgid "Текст"
+msgstr ""
+
+#: news/models.py:94 news/models.py:99 news/models.py:112
+msgid "Публикация"
+msgstr ""
+
+#: news/models.py:95 templates/news/category_detail.html:28
+msgid "Публикации"
+msgstr ""
+
+#: news/models.py:104
+msgid "Категория публикации"
+msgstr ""
+
+#: news/models.py:105
+msgid "Категории публикаций"
+msgstr ""
+
+#: news/models.py:132
+msgid "Комментарий"
+msgstr ""
+
+#: news/models.py:133
+msgid "Комментарии"
+msgstr ""
+
+#: news/views.py:25
+msgid ""
+"Недостаточно прав для выполнения действия. Станьте автором, чтобы продолжить."
+msgstr ""
+
+#: news/views.py:55
+#, python-format
+msgid "Вы подписались на категорию: %(name)s"
+msgstr ""
+
+#: news/views.py:63
+#, python-format
+msgid "Вы отписались от категории: %(name)s"
+msgstr ""
+
+#: news/views.py:159
+msgid ""
+"Вы стали автором! Теперь вам доступны создание и редактирование публикаций."
+msgstr ""
+
+#: newsportal/settings.py:78
+msgid "English"
+msgstr ""
+
+#: newsportal/settings.py:79
+msgid "Russian"
+msgstr ""
+
+#: templates/account/become_author.html:4
+#: templates/account/become_author.html:9
+msgid "Стать автором"
+msgstr ""
+
+#: templates/account/become_author.html:5
+msgid ""
+"Нажмите кнопку ниже, чтобы стать автором и получить права на создание и "
+"редактирование публикаций."
+msgstr ""
+
+#: templates/account/login.html:6
+msgid "Вход"
+msgstr ""
+
+#: templates/account/login.html:10 templates/account/signup.html:10
+msgid "Войти"
+msgstr ""
+
+#: templates/account/login.html:15
+msgid "Или войдите через"
+msgstr ""
+
+#: templates/account/login.html:20
+msgid ""
+"Кнопка входа через Yandex скрыта: не настроено SocialApp для текущего сайта. "
+"См. README раздел про allauth."
+msgstr ""
+
+#: templates/account/login.html:22
+msgid "Нет аккаунта?"
+msgstr ""
+
+#: templates/account/login.html:22 templates/account/signup.html:8
+msgid "Зарегистрироваться"
+msgstr ""
+
+#: templates/account/profile_form.html:4
+msgid "Профиль"
+msgstr ""
+
+#: templates/account/profile_form.html:8 templates/news/article_form.html:11
+#: templates/news/news_form.html:11
+msgid "Сохранить"
+msgstr ""
+
+#: templates/account/signup.html:4
+msgid "Регистрация"
+msgstr ""
+
+#: templates/account/signup.html:10
+msgid "Уже есть аккаунт?"
+msgstr ""
+
+#: templates/default.html:35
+msgid "Переключить"
+msgstr ""
+
+#: templates/news/article_confirm_delete.html:4
+#: templates/news/article_confirm_delete.html:7
+msgid "Удалить статью"
+msgstr ""
+
+#: templates/news/article_confirm_delete.html:8
+#, python-format
+msgid "Вы уверены, что хотите удалить статью: \"%(title)s\"?"
+msgstr ""
+
+#: templates/news/article_confirm_delete.html:11
+#: templates/news/news_confirm_delete.html:11
+msgid "Да, удалить"
+msgstr ""
+
+#: templates/news/article_confirm_delete.html:12
+#: templates/news/article_form.html:12
+#: templates/news/news_confirm_delete.html:12 templates/news/news_form.html:12
+msgid "Отмена"
+msgstr ""
+
+#: templates/news/article_detail.html:10 templates/news/news_detail.html:10
+#: templates/news/news_list.html:15 templates/news/news_search.html:41
+msgid "Дата публикации"
+msgstr ""
+
+#: templates/news/article_detail.html:23 templates/news/category_detail.html:44
+msgid "На главную"
+msgstr ""
+
+#: templates/news/article_form.html:4 templates/news/article_form.html:7
+msgid "Редактировать статью"
+msgstr ""
+
+#: templates/news/article_form.html:4 templates/news/article_form.html:7
+msgid "Создать статью"
+msgstr ""
+
+#: templates/news/category_detail.html:14
+msgid "Отписаться от рассылки"
+msgstr ""
+
+#: templates/news/category_detail.html:19
+msgid "Подписаться на рассылку"
+msgstr ""
+
+#: templates/news/category_detail.html:23
+msgid ""
+"Чтобы подписаться на рассылку, <a href=\"/accounts/login/\">войдите</a> или "
+"<a href=\"/accounts/signup/\">зарегистрируйтесь</a>."
+msgstr ""
+
+#: templates/news/category_detail.html:40
+msgid "В этой категории пока нет публикаций."
+msgstr ""
+
+#: templates/news/news_confirm_delete.html:4
+#: templates/news/news_confirm_delete.html:7
+msgid "Удалить новость"
+msgstr ""
+
+#: templates/news/news_confirm_delete.html:8
+#, python-format
+msgid "Вы уверены, что хотите удалить новость: \"%(title)s\"?"
+msgstr ""
+
+#: templates/news/news_detail.html:23
+msgid "Ко всем новостям"
+msgstr ""
+
+#: templates/news/news_form.html:4 templates/news/news_form.html:7
+msgid "Редактировать новость"
+msgstr ""
+
+#: templates/news/news_form.html:4 templates/news/news_form.html:7
+msgid "Создать новость"
+msgstr ""
+
+#: templates/news/news_list.html:5 templates/news/news_list.html:8
+msgid "Все новости"
+msgstr ""
+
+#: templates/news/news_list.html:9 templates/news/news_search.html:5
+#: templates/news/news_search.html:8
+msgid "Поиск новостей"
+msgstr ""
+
+#: templates/news/news_list.html:9
+msgid "Добавить новость"
+msgstr ""
+
+#: templates/news/news_list.html:9
+msgid "Добавить статью"
+msgstr ""
+
+#: templates/news/news_list.html:18
+msgid "Редактировать"
+msgstr ""
+
+#: templates/news/news_list.html:19
+msgid "Удалить"
+msgstr ""
+
+#: templates/news/news_list.html:25 templates/news/news_search.html:47
+msgid "Навигация по страницам"
+msgstr ""
+
+#: templates/news/news_list.html:28 templates/news/news_search.html:50
+msgid "Первая"
+msgstr ""
+
+#: templates/news/news_list.html:29 templates/news/news_search.html:51
+msgid "Предыдущая"
+msgstr ""
+
+#: templates/news/news_list.html:44 templates/news/news_search.html:65
+msgid "Следующая"
+msgstr ""
+
+#: templates/news/news_list.html:45 templates/news/news_search.html:66
+msgid "Последняя"
+msgstr ""
+
+#: templates/news/news_list.html:51
+msgid "Новостей пока нет."
+msgstr ""
+
+#: templates/news/news_search.html:14
+msgid "Автор (имя пользователя)"
+msgstr ""
+
+#: templates/news/news_search.html:17
+msgid "Позже даты"
+msgstr ""
+
+#: templates/news/news_search.html:22
+msgid "Все категории"
+msgstr ""
+
+#: templates/news/news_search.html:30
+msgid "Искать"
+msgstr ""
+
+#: templates/news/news_search.html:31
+msgid "Сбросить"
+msgstr ""
+
+#: templates/news/news_search.html:72
+msgid "Ничего не найдено."
+msgstr ""
